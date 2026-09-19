@@ -1,4 +1,5 @@
 import { Client, ID, TablesDB } from 'appwrite'
+import { services } from '../content'
 
 export type ProjectBrief = {
   name: string
@@ -11,7 +12,9 @@ export type ProjectBrief = {
   consent: boolean
 }
 
-export const serviceOptions = ['Website development', 'Custom software', 'Brand identity', 'Automation']
+// Single source of truth: the enquiry form's options are always the services the
+// site actually advertises. Editing src/content.ts updates both.
+export const serviceOptions = services.map((service) => service.short)
 
 export async function submitBrief(brief: ProjectBrief) {
   const endpoint = import.meta.env.VITE_APPWRITE_ENDPOINT

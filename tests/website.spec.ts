@@ -5,7 +5,7 @@ async function fillBrief(page: Page) {
   await page.getByRole('textbox', { name: 'Your name' }).fill('Alex Taylor')
   await page.getByRole('textbox', { name: 'Email address' }).fill('alex@example.com')
   await page.getByRole('textbox', { name: 'Company' }).fill('Example Studio')
-  await page.getByRole('combobox', { name: 'Budget range' }).selectOption('$5,000 - $10,000')
+  await page.getByRole('combobox', { name: 'Where are you with budget?' }).selectOption("Let's discuss and scope it properly")
   await page.getByRole('combobox', { name: 'Ideal timeline' }).selectOption('1 - 3 months')
   await page.getByRole('textbox', { name: 'A little about your project' }).fill('We need a new website and a considered digital identity for our business.')
   await page.getByRole('checkbox', { name: /I agree/ }).check()
@@ -18,7 +18,12 @@ for (const width of [320, 390, 768, 900, 1440, 1920]) {
     await page.emulateMedia({ reducedMotion: 'reduce' })
     const errors: string[] = []
     page.on('pageerror', (error) => errors.push(error.message))
-    await page.goto('/')
+    // This test measures layout in pixels, so it has to wait for a settled page.
+    // Under the default 'load' condition the hero still shifts ~18px afterwards, which
+    // made the clearance assertion below fail against a layout no visitor ever sees.
+    // Measured: clearance is -7px at 'load' and +11px once the network is idle, in both
+    // the dev server and a production preview.
+    await page.goto('/', { waitUntil: 'networkidle' })
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Made by Netdin')
     await expect(page.locator('.hero-image')).toHaveAttribute('src', '/images/product-hero.png')
     await expect(page.locator('.hero-image')).toHaveAttribute('alt', /software dashboard.*concept/)
@@ -28,9 +33,14 @@ for (const width of [320, 390, 768, 900, 1440, 1920]) {
     await expect(page.locator('.header .wordmark')).toHaveText('netdin')
     await expect(page.locator('.footer .wordmark')).toHaveText('netdin')
     if (width <= 1100) {
-      const actions = await page.locator('.hero-actions').boundingBox()
-      const image = await page.locator('.hero-image').boundingBox()
-      expect(actions!.y + actions!.height + 8).toBeLessThanOrEqual(image!.y)
+      // Retried rather than measured once: the settled clearance is 11px against a
+      // required 8px, so a single reading taken while the page is still settling can
+      // fail on a loaded machine even though the layout is correct.
+      await expect(async () => {
+        const actions = await page.locator('.hero-actions').boundingBox()
+        const image = await page.locator('.hero-image').boundingBox()
+        expect(actions!.y + actions!.height + 8).toBeLessThanOrEqual(image!.y)
+      }).toPass({ timeout: 10_000 })
     }
     for (const selector of ['.hero-content > p', '.intro p', '.section-top > p', '.process-step p', '.faq-item summary', '.contact-band-bottom p']) {
       for (const element of await page.locator(selector).all()) {
@@ -111,7 +121,7 @@ test('mobile navigation and service enquiry selection work', async ({ page }) =>
   await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible()
   await page.getByRole('link', { name: 'What we do' }).click()
   await expect(page.getByRole('button', { name: 'Open menu' })).toHaveAttribute('aria-expanded', 'false')
-  await page.getByRole('button', { name: '02 Custom software' }).click()
+  await page.getByRole('button', { name: 'Custom software' }).click()
   await expect(page.locator('#service-panel-1')).toBeVisible()
   await page.getByRole('button', { name: "Let's talk custom software" }).click()
   await expect(page.getByRole('dialog')).toBeVisible()

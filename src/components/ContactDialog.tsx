@@ -90,7 +90,7 @@ export function ContactDialog({ onClose, initialService = '' }: { onClose: () =>
                 </div>
               </fieldset>
               <div className="form-grid">
-                <label>Budget range (USD) <span>*</span><select name="budget" defaultValue="" required><option value="" disabled>Select a range</option><option>Under $5,000</option><option>$5,000 - $10,000</option><option>$10,000 - $25,000</option><option>$25,000 - $50,000</option><option>$50,000+</option><option>Let's discuss</option></select></label>
+                <label>Where are you with budget? <span>*</span><select name="budget" defaultValue="" required><option value="" disabled>Select an option</option><option>Let's discuss and scope it properly</option><option>I have a budget approved</option><option>I need a ballpark first</option><option>Just exploring for now</option></select></label>
                 <label>Ideal timeline <span>*</span><select name="timeline" defaultValue="" required><option value="" disabled>Select a timeline</option><option>As soon as possible</option><option>1 - 3 months</option><option>3 - 6 months</option><option>Just exploring</option></select></label>
               </div>
               <label>A little about your project <span>*</span><textarea name="message" required minLength={20} maxLength={5000} rows={3} placeholder="What are you building, improving, or imagining?" /></label>
