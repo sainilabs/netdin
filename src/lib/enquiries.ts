@@ -34,7 +34,7 @@ export async function submitBrief(brief: ProjectBrief) {
       databaseId,
       tableId,
       rowId: ID.unique(),
-      data: { ...brief, source: 'netdin.com', consentVersion: '2026-09-11' },
+      data: { ...brief, source: 'netdin.com', consentVersion: '2026-09-12' },
       permissions: [],
     })
   } catch {
